@@ -8,6 +8,7 @@
 import re
 import argparse
 import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import shutil
 import time
 import math
@@ -27,6 +28,7 @@ from mean_teacher import architectures, datasets, data, losses, ramps, cli
 from mean_teacher.run_context import RunContext
 from mean_teacher.data import NO_LABEL
 from mean_teacher.utils import *
+from mean_teacher.resnet import resnet20_cifar
 
 
 LOG = logging.getLogger('main')
@@ -39,6 +41,9 @@ global_step = 0
 def main(context):
     global global_step
     global best_prec1
+
+    print(args)
+    # ds
 
     checkpoint_path = context.transient_dir
     training_log = context.create_train_log("training")
@@ -58,6 +63,7 @@ def main(context):
         model_factory = architectures.__dict__[args.arch]
         model_params = dict(pretrained=args.pretrained, num_classes=num_classes)
         model = model_factory(**model_params)
+        # model = resnet20_cifar()
         model = nn.DataParallel(model).cuda()
 
         if ema:
@@ -224,7 +230,7 @@ def train(train_loader, model, ema_model, optimizer, epoch, log):
         target_var = torch.autograd.Variable(target.cuda(async=True))
 
         minibatch_size = len(target_var)
-        labeled_minibatch_size = target_var.data.ne(NO_LABEL).sum()
+        labeled_minibatch_size = target_var.data.ne(NO_LABEL).sum().float()
         assert labeled_minibatch_size > 0
         meters.update('labeled_minibatch_size', labeled_minibatch_size)
 
@@ -326,7 +332,7 @@ def validate(eval_loader, model, log, global_step, epoch):
         target_var = torch.autograd.Variable(target.cuda(async=True), volatile=True)
 
         minibatch_size = len(target_var)
-        labeled_minibatch_size = target_var.data.ne(NO_LABEL).sum()
+        labeled_minibatch_size = target_var.data.ne(NO_LABEL).sum().float()
         assert labeled_minibatch_size > 0
         meters.update('labeled_minibatch_size', labeled_minibatch_size)
 
@@ -337,6 +343,8 @@ def validate(eval_loader, model, log, global_step, epoch):
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output1.data, target_var.data, topk=(1, 5))
+        # print(prec1[0])
+        # print(prec5[0])
         meters.update('class_loss', class_loss.data[0], labeled_minibatch_size)
         meters.update('top1', prec1[0], labeled_minibatch_size)
         meters.update('error1', 100.0 - prec1[0], labeled_minibatch_size)
@@ -409,11 +417,10 @@ def accuracy(output, target, topk=(1,)):
     _, pred = output.topk(maxk, 1, True, True)
     pred = pred.t()
     correct = pred.eq(target.view(1, -1).expand_as(pred))
-
     res = []
     for k in topk:
         correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
-        res.append(correct_k.mul_(100.0 / labeled_minibatch_size))
+        res.append(correct_k.mul_(100.0 / labeled_minibatch_size.float()))
     return res
 
 

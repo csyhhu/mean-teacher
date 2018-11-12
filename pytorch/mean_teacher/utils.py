@@ -8,7 +8,7 @@
 """Utility functions and classes"""
 
 import sys
-
+import torch
 
 def parameters_string(module):
     lines = [
@@ -57,16 +57,50 @@ class AverageMeterSet:
             meter.reset()
 
     def values(self, postfix=''):
-        return {name + postfix: meter.val for name, meter in self.meters.items()}
+        values_dict = {}
+        for name, meter in self.meters.items():
+            val = meter.val
+            if isinstance(val, torch.cuda.FloatTensor):
+                val = val.cpu().data.numpy()
+            values_dict[name + postfix] = val
+        # print(values_dict)
+        return values_dict
+
+        # return {name + postfix: meter.val for name, meter in self.meters.items()}
 
     def averages(self, postfix='/avg'):
-        return {name + postfix: meter.avg for name, meter in self.meters.items()}
+        values_dict = {}
+        for name, meter in self.meters.items():
+            avg = meter.avg
+            if isinstance(avg, torch.cuda.FloatTensor):
+                avg = avg.cpu().data.numpy()
+            values_dict[name + postfix] = avg
+        # print(values_dict)
+        return values_dict
+
+        # return {name + postfix: meter.avg for name, meter in self.meters.items()}
 
     def sums(self, postfix='/sum'):
-        return {name + postfix: meter.sum for name, meter in self.meters.items()}
+        values_dict = {}
+        for name, meter in self.meters.items():
+            val = meter.sum
+            if isinstance(val, torch.cuda.FloatTensor):
+                val = val.cpu().data.numpy()
+            values_dict[name + postfix] = val
+        # print(values_dict)
+        return values_dict
+        # return {name + postfix: meter.sum for name, meter in self.meters.items()}
 
     def counts(self, postfix='/count'):
-        return {name + postfix: meter.count for name, meter in self.meters.items()}
+        values_dict = {}
+        for name, meter in self.meters.items():
+            val = meter.count
+            if isinstance(val, torch.cuda.FloatTensor):
+                val = val.cpu().data.numpy()
+            values_dict[name + postfix] = val
+        # print(values_dict)
+        return values_dict
+        # return {name + postfix: meter.count for name, meter in self.meters.items()}
 
 
 class AverageMeter:

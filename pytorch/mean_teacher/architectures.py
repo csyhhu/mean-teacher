@@ -15,7 +15,18 @@ from torch.nn import functional as F
 from torch.autograd import Variable, Function
 
 from .utils import export, parameter_count
+from .resnet import resnet20_cifar
 
+@export
+def resnet20(pretrained=False, **kwargs):
+    model = resnet20_cifar()
+    return model
+
+
+@export
+def cifar_small(pretrained=False, **kwargs):
+    model = SmallConv()
+    return model
 
 @export
 def cifar_shakeshake26(pretrained=False, **kwargs):
@@ -37,6 +48,25 @@ def resnext152(pretrained=False, **kwargs):
                           downsample='basic', **kwargs)
     return model
 
+
+class SmallConv(nn.Module):
+    def __init__(self):
+        super(SmallConv, self).__init__()
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=5)
+        self.conv2 = nn.Conv2d(64, 128, kernel_size=3)
+        self.conv3 = nn.Conv2d(128, 128, kernel_size=3)
+        self.fc1 = nn.Linear(128, 10)
+        self.fc2 = nn.Linear(128, 10)
+
+    def forward(self, x):
+        x = F.relu(F.max_pool2d(self.conv1(x), 2))
+        x = F.relu(F.max_pool2d(self.conv2(x), 2))
+        x = F.relu(F.max_pool2d(self.conv3(x), 2))
+        x = F.adaptive_avg_pool2d(x, 1)
+        x = x.view(-1, 128)
+        x1 = self.fc1(x)
+        x2 = self.fc2(x)
+        return x1, x2
 
 
 class ResNet224x224(nn.Module):

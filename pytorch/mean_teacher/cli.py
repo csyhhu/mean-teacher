@@ -32,7 +32,7 @@ def create_parser():
                         help='list of image labels (default: based on directory structure)')
     parser.add_argument('--exclude-unlabeled', default=False, type=str2bool, metavar='BOOL',
                         help='exclude unlabeled examples from the training set')
-    parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',
+    parser.add_argument('--arch', '-a', metavar='ARCH', default='cifar_shakeshake26',
                         choices=architectures.__all__,
                         help='model architecture: ' +
                             ' | '.join(architectures.__all__))
@@ -71,7 +71,7 @@ def create_parser():
                         help='length of the consistency loss ramp-up')
     parser.add_argument('--logit-distance-cost', default=-1, type=float, metavar='WEIGHT',
                         help='let the student model have two outputs and use an MSE loss between the logits with the given weight (default: only have one output)')
-    parser.add_argument('--checkpoint-epochs', default=1, type=int,
+    parser.add_argument('--checkpoint-epochs', default=100, type=int,
                         metavar='EPOCHS', help='checkpoint frequency in epochs, 0 to turn checkpointing off (default: 1)')
     parser.add_argument('--evaluation-epochs', default=1, type=int,
                         metavar='EPOCHS', help='evaluation frequency in epochs, 0 to turn evaluation off (default: 1)')

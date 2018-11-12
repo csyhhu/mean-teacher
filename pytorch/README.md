@@ -29,6 +29,18 @@ python main.py \
     --lr-rampdown-epochs 210
 ```
 
+```
+python main.py \
+    --dataset cifar10 \
+    --labels data-local/labels/cifar10/1000_balanced_labels/00.txt \
+    --arch cifar_small \
+    --consistency 100.0 \
+    --consistency-rampup 5 \
+    --labeled-batch-size 62 \
+    --epochs 180 \
+    --lr-rampdown-epochs 210
+```
+
 Use `python main.py --help` to see other command line arguments.
 
 To reproduce the CIFAR-10 ResNet results of the paper run `python -m experiments.cifar10_test` using 4 GPUs.

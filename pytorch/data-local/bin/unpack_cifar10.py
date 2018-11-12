@@ -19,8 +19,7 @@ import numpy as np
 work_dir = os.path.abspath(sys.argv[1])
 test_dir = os.path.abspath(os.path.join(sys.argv[2], 'test'))
 train_dir = os.path.abspath(os.path.join(sys.argv[2], 'train+val'))
-
-cifar10 = CIFAR10(work_dir, download=True)
+cifar10 = CIFAR10(work_dir, download=False)
 
 
 def load_file(file_name):

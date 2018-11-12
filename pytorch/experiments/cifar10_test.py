@@ -24,7 +24,7 @@ def parameters():
     defaults = {
         # Technical details
         'workers': 2,
-        'checkpoint_epochs': 20,
+        'checkpoint_epochs': 100,
 
         # Data
         'dataset': 'cifar10',
@@ -36,7 +36,8 @@ def parameters():
         'base_labeled_batch_size': 31,
 
         # Architecture
-        'arch': 'cifar_shakeshake26',
+        # 'arch': 'cifar_shakeshake26',
+        'arch': 'resnet20',
 
         # Costs
         'consistency_type': 'mse',
